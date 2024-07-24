@@ -4,34 +4,38 @@ image: Visual Studio 2022
 
 # Define the build script
 build_script:
-  - ps: |
-      # Check if running as Administrator
-      $adminCheck = net session >nul 2>&1
-      if ($?) {
-          Write-Output "Administrator privileges are present."
-      } else {
-          Write-Output "Administrator privileges are not present."
-      }
+  - cmd: |
+      @echo off
 
-      # Check if Developer Mode is enabled
-      $developerMode = Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowDevelopmentWithoutDevLicense" -ErrorAction SilentlyContinue
-      if ($developerMode.AllowDevelopmentWithoutDevLicense -eq 1) {
-          Write-Output "Developer Mode is enabled."
-      } else {
-          Write-Output "Developer Mode is not enabled."
-      }
+      REM Check if running as Administrator
+      net session >nul 2>&1
+      if %errorlevel% equ 0 (
+          echo Administrator privileges are present.
+      ) else (
+          echo Administrator privileges are not present.
+      )
 
-      # Check if SeCreateSymbolicLinkPrivilege is enabled
-      $symlinkPrivilege = ((whoami /priv) -match "SeCreateSymbolicLinkPrivilege") -and ((whoami /priv) -match "Enabled")
-      if ($symlinkPrivilege) {
-          Write-Output "You have the required privileges to create symlinks."
-      } else {
-          Write-Output "You do not have the required privileges to create symlinks."
-      }
+      REM Check if Developer Mode is enabled
+      reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v "AllowDevelopmentWithoutDevLicense" | find "0x1" >nul 2>&1
+      if %errorlevel% equ 0 (
+          echo Developer Mode is enabled.
+      ) else (
+          echo Developer Mode is not enabled.
+      )
 
-      # Check if 'cat' program is installed
-      if (Get-Command cat -ErrorAction SilentlyContinue) {
-          Write-Output "The 'cat' program is installed."
-      } else {
-          Write-Output "The 'cat' program is not installed."
-      }
+      REM Check if SeCreateSymbolicLinkPrivilege is enabled
+      whoami /priv | find "SeCreateSymbolicLinkPrivilege" | find "Enabled" >nul 2>&1
+      if %errorlevel% equ 0 (
+          echo You have the required privileges to create symlinks.
+      ) else (
+          echo You do not have the required privileges to create symlinks.
+      )
+
+      REM Check if 'cat' program is installed
+      where cat >nul 2>&1
+      if %errorlevel% equ 0 (
+          echo The 'cat' program is installed at:
+          where cat
+      ) else (
+          echo The 'cat' program is not installed.
+      )
