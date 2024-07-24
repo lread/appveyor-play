@@ -7,7 +7,7 @@ build_script:
   - cmd: |
       @echo off
 
-      REM Check if running as Administrator
+      :: Check if running as Administrator
       net session >nul 2>&1
       if %errorlevel% equ 0 (
           echo Administrator privileges are present.
@@ -15,7 +15,7 @@ build_script:
           echo Administrator privileges are not present.
       )
 
-      REM Check if Developer Mode is enabled
+      :: Check if Developer Mode is enabled
       reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v "AllowDevelopmentWithoutDevLicense" | find "0x1" >nul 2>&1
       if %errorlevel% equ 0 (
           echo Developer Mode is enabled.
@@ -23,7 +23,7 @@ build_script:
           echo Developer Mode is not enabled.
       )
 
-      REM Check if SeCreateSymbolicLinkPrivilege is enabled
+      :: Check if SeCreateSymbolicLinkPrivilege is enabled
       whoami /priv | find "SeCreateSymbolicLinkPrivilege" | find "Enabled" >nul 2>&1
       if %errorlevel% equ 0 (
           echo You have the required privileges to create symlinks.
@@ -31,7 +31,7 @@ build_script:
           echo You do not have the required privileges to create symlinks.
       )
 
-      REM Check if 'cat' program is installed
+      :: Check if 'cat' program is installed
       where cat >nul 2>&1
       if %errorlevel% equ 0 (
           echo The 'cat' program is installed at:
@@ -39,3 +39,6 @@ build_script:
       ) else (
           echo The 'cat' program is not installed.
       )
+
+      :: End of script
+      exit /b 0
