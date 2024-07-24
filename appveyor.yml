@@ -4,45 +4,17 @@ image: Visual Studio 2022
 
 # Define the build script
 build_script:
-  - cmd: |
-      @echo off
+  - cmd: >
+      @echo off && net session >nul 2>&1 && echo Administrator privileges are present. || echo Administrator privileges are not present.
 
-      REM Check if running as Administrator
-      net session >nul 2>&1 && (echo Administrator privileges are present.) || (echo Administrator privileges are not present. & (cmd /c exit /b 0))
+  - cmd: >
+      @echo off && reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v "AllowDevelopmentWithoutDevLicense" >nul 2>&1 && (reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v "AllowDevelopmentWithoutDevLicense" | find "0x1" >nul 2>&1 && echo Developer Mode is enabled. || echo Developer Mode is not enabled.) || echo Developer Mode key not found, assuming not enabled.
 
-      REM Check if Developer Mode is enabled
-      reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v "AllowDevelopmentWithoutDevLicense" >nul 2>&1 && (
-          reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v "AllowDevelopmentWithoutDevLicense" | find "0x1" >nul 2>&1 && (
-              echo Developer Mode is enabled. & (cmd /c exit /b 0)
-          ) || (
-              echo Developer Mode is not enabled. & (cmd /c exit /b 0)
-          )
-      ) || (
-          echo Developer Mode key not found, assuming not enabled. & (cmd /c exit /b 0)
-      )
+  - cmd: >
+      @echo off && whoami /priv > privileges.txt && (findstr /c:"SeCreateSymbolicLinkPrivilege" privileges.txt >nul 2>&1 && (findstr /c:"Enabled" privileges.txt >nul 2>&1 && echo You have the required privileges to create symlinks. || echo You do not have the required privileges to create symlinks.) || echo SeCreateSymbolicLinkPrivilege not found.) || echo SeCreateSymbolicLinkPrivilege check failed. && del privileges.txt
 
-      REM Check if SeCreateSymbolicLinkPrivilege is enabled
-      whoami /priv > privileges.txt && (
-          findstr /c:"SeCreateSymbolicLinkPrivilege" privileges.txt >nul 2>&1 && (
-              findstr /c:"Enabled" privileges.txt >nul 2>&1 && (
-                  echo You have the required privileges to create symlinks. & (cmd /c exit /b 0)
-              ) || (
-                  echo You do not have the required privileges to create symlinks. & (cmd /c exit /b 0)
-              )
-          ) || (
-              echo SeCreateSymbolicLinkPrivilege not found. & (cmd /c exit /b 0)
-          )
-      ) || (
-          echo SeCreateSymbolicLinkPrivilege check failed. & (cmd /c exit /b 0)
-      )
-      del privileges.txt
+  - cmd: >
+      @echo off && where cat >nul 2>&1 && (echo The 'cat' program is installed at: && where cat) || echo The 'cat' program is not installed.
 
-      REM Check if 'cat' program is installed
-      where cat >nul 2>&1 && (
-          echo The 'cat' program is installed at: && where cat & (cmd /c exit /b 0)
-      ) || (
-          echo The 'cat' program is not installed. & (cmd /c exit /b 0)
-      )
-
-      REM End of script
-      exit 0
+  - cmd: >
+      @echo off && exit 0
