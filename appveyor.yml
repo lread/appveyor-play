@@ -7,38 +7,17 @@ build_script:
   - cmd: |
       @echo off
 
-      :: Check if running as Administrator
-      net session >nul 2>&1
-      if %errorlevel% equ 0 (
-          echo Administrator privileges are present.
-      ) else (
-          echo Administrator privileges are not present.
-      )
+      REM Check if running as Administrator
+      net session >nul 2>&1 && echo Administrator privileges are present. || echo Administrator privileges are not present.
 
-      :: Check if Developer Mode is enabled
-      reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v "AllowDevelopmentWithoutDevLicense" | find "0x1" >nul 2>&1
-      if %errorlevel% equ 0 (
-          echo Developer Mode is enabled.
-      ) else (
-          echo Developer Mode is not enabled.
-      )
+      REM Check if Developer Mode is enabled
+      reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v "AllowDevelopmentWithoutDevLicense" | find "0x1" >nul 2>&1 && echo Developer Mode is enabled. || echo Developer Mode is not enabled.
 
-      :: Check if SeCreateSymbolicLinkPrivilege is enabled
-      whoami /priv | find "SeCreateSymbolicLinkPrivilege" | find "Enabled" >nul 2>&1
-      if %errorlevel% equ 0 (
-          echo You have the required privileges to create symlinks.
-      ) else (
-          echo You do not have the required privileges to create symlinks.
-      )
+      REM Check if SeCreateSymbolicLinkPrivilege is enabled
+      whoami /priv | find "SeCreateSymbolicLinkPrivilege" | find "Enabled" >nul 2>&1 && echo You have the required privileges to create symlinks. || echo You do not have the required privileges to create symlinks.
 
-      :: Check if 'cat' program is installed
-      where cat >nul 2>&1
-      if %errorlevel% equ 0 (
-          echo The 'cat' program is installed at:
-          where cat
-      ) else (
-          echo The 'cat' program is not installed.
-      )
+      REM Check if 'cat' program is installed
+      where cat >nul 2>&1 && (echo The 'cat' program is installed at: && where cat) || echo The 'cat' program is not installed.
 
-      :: End of script
-      exit /b 0
+      REM End of script
+      exit 0
